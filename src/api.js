@@ -1,12 +1,7 @@
-// import axios from 'axios';
-// import handleApiError from './components/handleApiError';
-
 import axios from 'axios';
-import handleApiError from './components/handleApiError';
+import handleApiError from './hooks/handleApiError';
 
 const baseURL = 'http://localhost:4000'; // Replace with your API base URL
-
-// console.log('handleApiError: ', handleApiError);
 
 const axiosInstance = axios.create({
     baseURL,
@@ -36,6 +31,6 @@ const makeApiRequest = async (method, url, data = null) => {
 // Dummy usage
 export const login = async (payload) => {
     return makeApiRequest('post', '/login', {
-        username: 'user1', password: 'password'
+        username: 'user1', password: 'password1'
     });
 };

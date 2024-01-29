@@ -3,7 +3,10 @@ import './App.css';
 
 function App() {
   return (
-    <Outlet />
+    <>
+      {/* create your page layout here */}
+      <Outlet />
+    </>
   );
 }
 

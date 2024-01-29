@@ -1,7 +1,8 @@
 import { Navigate } from 'react-router-dom';
-import DashboardInner from './DashboardInner';
-import Login from './Login';
+import App from '../App';
 import { isAuthenticated } from '../hooks/isAuthenticated';
+import Login from './Login';
+import NotFound from './NotFound';
 
 // if already authenticated and try to access login page, redirect to homepage
 const PublicRoute = ({ children }) => {
@@ -14,28 +15,27 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const wrapRoutesWithProtectedRoute = (routes) => {
+    // Map over the routes array
     return routes.map(route => {
         // Check if the route has children
         if (route.children) {
-            // If the route has children, map over the children array and wrap each element in ProtectedRoute
-            const children = route.children.map(child => ({
-                ...child,
-                element: shouldWrapWithProtectedRoute(child) ? (
-                    <ProtectedRoute key={child.path}>{child.element}</ProtectedRoute>
-                ) : <PublicRoute key={child.path}>{child.element}</PublicRoute>,
-            }));
-            // Return the route object with wrapped children
+            // If it has children, recursively wrap the children with protected route
+            const children = wrapRoutesWithProtectedRoute(route.children);
             return {
                 ...route,
                 children,
             };
         } else {
-            // If the route doesn't have children, check if it has an element and if it should be wrapped
+            // If the route does not have children, determine whether to wrap it with protected or public route
             return {
                 ...route,
                 element: shouldWrapWithProtectedRoute(route) ? (
+                    // If it should be wrapped with protected route, create a ProtectedRoute element
                     <ProtectedRoute key={route.path}>{route.element}</ProtectedRoute>
-                ) : <PublicRoute key={route.path}>{route.element}</PublicRoute>,
+                ) : (
+                    // If it should be wrapped with public route, create a PublicRoute element
+                    <PublicRoute key={route.path}>{route.element}</PublicRoute>
+                ),
             };
         }
     });
@@ -55,19 +55,34 @@ export const routes = wrapRoutesWithProtectedRoute([
     },
     {
         path: '',
+        private: true,
+        element: <App />,
         children: [
             {
-                index: true, // index route for specified route
+                index: true, // main homepage route
                 private: true,
-                element: <div>this is home page</div>,
+                element: <div>Main layout</div>,
             },
             {
-                path: ":id",  // dynamic route
-                private: true,
-                element: <DashboardInner />,
+                path: "dashboard",
+                private: false,
+                children: [
+                    {
+                        index: true, // dashboard homepage route
+                        private: true,
+                        element: <div>this is dashboard page</div>,
+                    },
+                    {
+                        path: ":id",
+                        private: true,
+                        element: <div>i am from dashboard inner</div>,
+                    },
+                ]
             },
         ],
     },
+    {
+        path: '*',    // 404 not found page
+        element: <NotFound />,
+    },
 ]);
-
-
